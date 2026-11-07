@@ -8,15 +8,12 @@ const audioRight = document.getElementById("audioRight");
 
 const state = {
   bars: [],
-  frameId: 0,
-  lastFrameTime: 0,
   audio: {
     lastUpdate: 0,
     spectrum: [],
   },
   settings: {
     sensitivity: 1,
-    fps: 30,
   },
 };
 
@@ -38,12 +35,6 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
 }
 
-function setClockText(element, value) {
-  if (element.textContent !== value) {
-    element.textContent = value;
-  }
-}
-
 function updateClock() {
   const now = new Date();
   const hours = now.getHours();
@@ -52,11 +43,11 @@ function updateClock() {
   const isAfternoon = hours >= 12;
   const displayHour = hours % 12 || 12;
 
-  setClockText(timeMain, `${pad(displayHour)}:${pad(minutes)}`);
-  setClockText(meridiem, isAfternoon ? "\u4e0b" : "\u4e0a");
-  setClockText(hourLabel, "\u5348");
-  setClockText(weekday, weekdays[now.getDay()]);
-  setClockText(secondNumber, pad(seconds));
+  timeMain.textContent = `${pad(displayHour)}:${pad(minutes)}`;
+  meridiem.textContent = isAfternoon ? "\u4e0b" : "\u4e0a";
+  hourLabel.textContent = "\u5348";
+  weekday.textContent = weekdays[now.getDay()];
+  secondNumber.textContent = pad(seconds);
 }
 
 function scheduleClockTick() {
@@ -115,7 +106,7 @@ function rebuildBars() {
       side: "left",
       fill: leftBar.fill,
       display: 0,
-      renderedScale: "0.000",
+      glow: 0,
     });
   }
 
@@ -126,7 +117,7 @@ function rebuildBars() {
       side: "right",
       fill: rightBar.fill,
       display: 0,
-      renderedScale: "0.000",
+      glow: 0,
     });
   }
 
@@ -144,58 +135,34 @@ function wallpaperAudioListener(audioArray) {
   }
 
   const halfCount = Math.max(1, Math.floor(state.bars.length / 2));
-  let hasAudio = false;
+  const nextSpectrum = new Array(state.bars.length).fill(0);
 
   for (let i = 0; i < state.bars.length; i += 1) {
     const localIndex = i % halfCount;
     const normalized = halfCount <= 1 ? 0 : localIndex / (halfCount - 1);
     const side = i < halfCount ? "left" : "right";
     const sample = getAudioSample(audioArray, side, normalized);
-    const value = clamp(Math.pow(sample, 0.82) * 1.05 * state.settings.sensitivity, 0, 1);
-    state.audio.spectrum[i] = value > 0.004 ? value : 0;
-    hasAudio = hasAudio || state.audio.spectrum[i] > 0;
+    nextSpectrum[i] = clamp(Math.pow(sample, 0.82) * 1.05 * state.settings.sensitivity, 0, 1);
   }
 
-  if (hasAudio && !state.frameId) {
-    state.lastFrameTime = performance.now() - 1000 / state.settings.fps;
-    state.frameId = requestAnimationFrame(renderBars);
-  }
+  state.audio.spectrum = nextSpectrum;
 }
 
-function renderBars(time) {
-  state.frameId = 0;
-  const elapsed = time - state.lastFrameTime;
-  if (elapsed + 0.1 < 1000 / state.settings.fps) {
-    state.frameId = requestAnimationFrame(renderBars);
-    return;
-  }
-
-  state.lastFrameTime = time;
-  const active = time - state.audio.lastUpdate < 220;
-  // Keep the original 60 FPS smoothing speed when a lower frame limit is used.
-  const decay = Math.pow(0.8, Math.min(elapsed, 1000) / (1000 / 60));
-  let needsFrame = false;
+function renderBars() {
+  const active = performance.now() - state.audio.lastUpdate < 220;
 
   for (let i = 0; i < state.bars.length; i += 1) {
     const target = active ? state.audio.spectrum[i] || 0 : 0;
     const bar = state.bars[i];
-    bar.display = bar.display * decay + target * (1 - decay);
-    if (bar.display <= 0.004 && target === 0) {
-      bar.display = 0;
-    }
-    needsFrame = needsFrame || bar.display > 0;
+    bar.display = bar.display * 0.8 + target * 0.2;
+    bar.glow = Math.max(bar.glow * 0.88, bar.display);
 
-    const scale = bar.display.toFixed(3);
-    if (scale !== bar.renderedScale) {
-      bar.renderedScale = scale;
-      bar.fill.style.transform = `scaleX(${scale})`;
-      bar.fill.style.opacity = bar.display > 0.004 ? `${0.12 + bar.display * 0.88}` : "0";
-    }
+    const width = bar.display * 100;
+    bar.fill.style.width = `${width}%`;
+    bar.fill.style.opacity = width > 0.4 ? `${0.12 + bar.display * 0.88}` : "0";
   }
 
-  if (needsFrame) {
-    state.frameId = requestAnimationFrame(renderBars);
-  }
+  requestAnimationFrame(renderBars);
 }
 
 window.addEventListener("resize", rebuildBars);
@@ -206,13 +173,9 @@ if (typeof window.wallpaperRegisterAudioListener === "function") {
   window.wallpaperRegisterAudioListener(wallpaperAudioListener);
 }
 
+requestAnimationFrame(renderBars);
+
 window.wallpaperPropertyListener = {
-  applyGeneralProperties(properties) {
-    const fps = Number(properties.fps);
-    if (Number.isFinite(fps) && fps > 0) {
-      state.settings.fps = fps;
-    }
-  },
   applyUserProperties(properties) {
     if (properties && properties.sensitivity) {
       const raw = properties.sensitivity.value;

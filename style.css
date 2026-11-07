@@ -1,0 +1,193 @@
+:root {
+  --bg: #02040a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--bg);
+  font-family: "Microsoft YaHei", sans-serif;
+}
+
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #010208;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: radial-gradient(circle at top, rgba(34, 93, 119, 0.08), transparent 42%), #010208;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+}
+
+.background {
+  background-image:
+    linear-gradient(to bottom, rgba(2, 6, 14, 0.15), rgba(0, 0, 0, 0.3)),
+    url("./background.jpg");
+  background-size: cover;
+  background-position: center;
+  transform: none;
+}
+
+.audio-side {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(140px, 16vw, 320px);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.audio-left {
+  left: 0;
+}
+
+.audio-right {
+  right: 0;
+}
+
+.audio-row {
+  flex: 1 1 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.audio-row-left {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.audio-row-right {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.audio-fill {
+  position: relative;
+  width: 0;
+  height: 100%;
+  opacity: 0;
+  background: linear-gradient(to right, rgba(12, 18, 30, 0.92), rgba(36, 58, 82, 0.72));
+  transition: width 90ms linear, opacity 120ms linear;
+}
+
+.audio-row-right .audio-fill {
+  background: linear-gradient(to right, rgba(36, 58, 82, 0.72), rgba(12, 18, 30, 0.92));
+}
+
+.audio-accent {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: max(1px, 8%);
+  background: rgba(76, 104, 132, 0.18);
+}
+
+.audio-row-left .audio-accent {
+  right: 0;
+}
+
+.audio-row-right .audio-accent {
+  left: 0;
+}
+
+.clock {
+  position: absolute;
+  left: 50%;
+  bottom: 7.8%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: rgba(126, 156, 176, 0.92);
+  letter-spacing: 0.02em;
+  user-select: none;
+  text-shadow:
+    0 1px 0 rgba(8, 14, 20, 0.5),
+    0 0 10px rgba(24, 46, 66, 0.18);
+  text-align: center;
+}
+
+.clock-row,
+.date-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.time-main {
+  font-size: clamp(5rem, 9vw, 7.4rem);
+  line-height: 0.88;
+  font-weight: 500;
+  color: rgba(148, 178, 198, 0.9);
+}
+
+.time-period {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.05rem;
+  margin-left: 0.22rem;
+  margin-bottom: 0.48rem;
+  font-size: clamp(1.85rem, 2.8vw, 2.7rem);
+  line-height: 0.88;
+  font-weight: 500;
+}
+
+.date-row {
+  gap: 0.8rem;
+  margin-top: 0.18rem;
+}
+
+.weekday {
+  font-size: clamp(2.5rem, 4.2vw, 3.8rem);
+  line-height: 0.9;
+  font-weight: 500;
+  color: rgba(122, 150, 168, 0.88);
+}
+
+.day {
+  font-size: clamp(2.1rem, 3.3vw, 3rem);
+  line-height: 0.86;
+  font-weight: 500;
+  margin-bottom: 0.04rem;
+  color: rgba(106, 132, 150, 0.84);
+}
+
+@media (max-width: 900px) {
+  .clock {
+    bottom: 8.5%;
+  }
+
+  .time-period {
+    margin-bottom: 0.3rem;
+  }
+
+  .date-row {
+    gap: 0.45rem;
+  }
+
+  .audio-side {
+    width: clamp(108px, 14vw, 180px);
+  }
+}

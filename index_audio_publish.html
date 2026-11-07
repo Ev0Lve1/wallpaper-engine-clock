@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clock Wallpaper</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="scene" aria-label="clock wallpaper scene">
+    <section class="stage" aria-label="main composition">
+      <div class="background"></div>
+      <div class="audio-side audio-left" id="audioLeft" aria-hidden="true"></div>
+      <div class="audio-side audio-right" id="audioRight" aria-hidden="true"></div>
+      <section class="clock" aria-label="system time">
+        <div class="clock-row">
+          <div class="time-main" id="timeMain">00:00</div>
+          <div class="time-period">
+            <span id="meridiem"></span>
+            <span id="hourLabel"></span>
+          </div>
+        </div>
+        <div class="date-row">
+          <div class="weekday" id="weekday"></div>
+          <div class="day" id="secondNumber">00</div>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script src="script-audio-edge.js"></script>
+</body>
+</html>

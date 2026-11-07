@@ -86,14 +86,16 @@ body {
 
 .audio-fill {
   position: relative;
-  width: 0;
+  width: 100%;
   height: 100%;
   opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left center;
   background: linear-gradient(to right, rgba(12, 18, 30, 0.92), rgba(36, 58, 82, 0.72));
-  transition: width 90ms linear, opacity 120ms linear;
 }
 
 .audio-row-right .audio-fill {
+  transform-origin: right center;
   background: linear-gradient(to right, rgba(36, 58, 82, 0.72), rgba(12, 18, 30, 0.92));
 }
 
